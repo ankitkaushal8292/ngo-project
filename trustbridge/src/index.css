@@ -1,0 +1,13 @@
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #f9fafb;
+}
+a {
+  text-decoration: none;
+  color: #065f46;
+  margin-left: 15px;
+}
+button {
+  cursor: pointer;
+}
