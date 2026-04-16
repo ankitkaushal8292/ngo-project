@@ -20,7 +20,7 @@ router.post(
     { name: "document", maxCount: 1 },
     { name: "photos", maxCount: 4 },
   ]),
-  async (req, res) => {
+  async (req, res) =>  {
     try {
       const { name, email, registrationNumber, password, type, address } =
         req.body;
@@ -39,6 +39,12 @@ router.post(
           .status(400)
           .json({ message: "NGO already registered" });
       }
+      
+const existingEmail = await Ngo.findOne({ email });
+
+if (existingEmail) {
+  return res.status(400).json({ message: "Email already exists" });
+}
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -60,10 +66,10 @@ router.post(
 
       await ngo.save();
 
-      res.status(201).json({
-        message: "NGO registered. Waiting for admin approval.",
-        ngoId: ngo._id,
-      });
+     res.status(201).json({
+  message: "NGO registered. Waiting for admin approval.",
+  ngo,  
+});
     } catch (err) {
       console.error("REGISTER ERROR:", err);
       res.status(500).json({ message: "Server error" });

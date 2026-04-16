@@ -66,16 +66,18 @@ const verifyBill = async(id)=>{
     refreshAll();
   };
 
-  const rejectNGO = async (id) => {
-    const reason = prompt("Enter rejection reason");
-    if (!reason) return;
-    await fetch(`http://localhost:5000/api/ngos/reject/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reason }),
-    });
-    refreshAll();
-  };
+const rejectNGO = async (id) => {
+  const reason = prompt("Enter rejection reason");
+  if (!reason) return;
+
+  await fetch(`http://localhost:5000/api/ngos/block/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ reason }),
+  });
+
+  refreshAll();
+};
 
   const blockNGO = async (id) => {
     const reason = prompt("Enter fraud / block reason");

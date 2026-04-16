@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 function DonorDashboard() {
-  const donor = JSON.parse(localStorage.getItem("donor")) || {};
+const donor = JSON.parse(localStorage.getItem("donor")) || {};
   const navigate = useNavigate?.(); // safe if needed later
 
   const [activeTab, setActiveTab] = useState("profile");
@@ -15,7 +15,11 @@ function DonorDashboard() {
     {
       ngo: "Helping Hands",
       amount: 500,
-      date: "10 Jan 2026",
+      date: new Date().toLocaleDateString("en-GB", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+}),
       status: "Success",
     },
     {
@@ -27,7 +31,8 @@ function DonorDashboard() {
   ];
 
   const handleLogout = () => {
-    localStorage.clear();
+   sessionStorage.clear();
+localStorage.removeItem("donor");
     window.location.href = "/";
   };
 
@@ -96,7 +101,7 @@ function DonorDashboard() {
                 <p><b>Name:</b> {donor.name}</p>
                 <p><b>Email:</b> {donor.email}</p>
                 <p><b>Role:</b> Donor</p>
-                <p><b>Joined Date:</b> Jan 2026</p>
+               <p><b>Joined Date:</b> {new Date().toLocaleDateString()}</p>
 
                 <hr />
 

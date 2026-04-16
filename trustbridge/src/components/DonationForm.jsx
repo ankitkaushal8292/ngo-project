@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function DonationForm({ ngoId }) {
+function DonationForm({ ngoId, campaignId, onClose  }) {
   const [frequency, setFrequency] = useState("monthly");
   const [amount, setAmount] = useState(1200);
   const [customAmount, setCustomAmount] = useState("");
@@ -21,9 +21,11 @@ method:"POST",
 headers:{
 "Content-Type":"application/json"
 },
-body:JSON.stringify({
-amount:donateAmount,
-ngoId:ngoId
+body: JSON.stringify({
+  amount: donateAmount,
+  ngoId: ngoId,
+  campaignId: campaignId,
+  donorId: sessionStorage.getItem("donorId")
 })
 })
 
@@ -35,6 +37,7 @@ return
 }
 
 alert("Donation successful 🎉")
+onClose && onClose();
 
 setAmount(1200)
 setCustomAmount("")

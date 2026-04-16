@@ -43,26 +43,41 @@ function Login({ onClose }) {
 
     /* ================= DONOR LOGIN ================= */
 
-    if (role === "donor") {
+if (role === "donor") {
+  try {
+    const res = await fetch("http://localhost:5000/api/donors/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: identifier,
+        password,
+      }),
+    });
 
-      sessionStorage.removeItem("ngo");
-      sessionStorage.removeItem("ngoId");
+    const data = await res.json();
 
-      sessionStorage.setItem(
-        "donor",
-        JSON.stringify({
-          name: identifier.split("@")[0],
-          email: identifier,
-          joinedAt: new Date().toISOString(),
-        })
-      );
-
-      sessionStorage.setItem("role", "donor");
-
-      navigate("/");
-      onClose && onClose();
+    if (!res.ok) {
+      alert(data.message || "Login failed");
       return;
     }
+
+    sessionStorage.clear();
+
+    sessionStorage.setItem("role", "donor");
+    sessionStorage.setItem("donor", JSON.stringify(data.donor));
+
+    navigate("/");
+    onClose && onClose();
+
+  } catch (err) {
+    console.error(err);
+    alert("Server error during donor login");
+  }
+
+  return;
+}
 
     /* ================= NGO LOGIN ================= */
 
@@ -117,7 +132,6 @@ function Login({ onClose }) {
 
         <form onSubmit={handleLogin} style={styles.form}>
 
-          {/* EMAIL OR REGISTRATION NUMBER */}
 
           <input
             type={role === "ngo" ? "text" : "email"}
@@ -132,7 +146,7 @@ function Login({ onClose }) {
             required
           />
 
-          {/* PASSWORD FOR ALL ROLES */}
+          
 
           {role && (
             <input
@@ -145,7 +159,7 @@ function Login({ onClose }) {
             />
           )}
 
-          {/* ROLE SELECT */}
+         
 
           <select
             value={role}

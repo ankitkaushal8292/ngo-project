@@ -28,6 +28,7 @@ app.use("/api/ngos", require("./routes/ngoRoutes"));
 /* 🔥 ADD THIS LINE FOR CAMPAIGNS */
 app.use("/api/campaigns", require("./routes/campaignRoutes"));
 
+app.use("/api/donors", require("./routes/donorRoutes"));
 app.use("/api/bills",require("./routes/billRoutes"))
 
 /* ================= HEALTH CHECK ================= */

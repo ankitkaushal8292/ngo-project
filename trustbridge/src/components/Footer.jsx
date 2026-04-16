@@ -6,7 +6,7 @@ function Footer() {
       <div style={styles.container}>
         {/* BRAND */}
         <div style={styles.section}>
-          <h2 style={styles.logo}>TrustBridge</h2>
+          <h2 style={styles.logo}>HelpChain</h2>
           <p style={styles.tagline}>
             Connecting donors with verified NGOs through transparency.
           </p>
@@ -17,13 +17,13 @@ function Footer() {
           <h4 style={styles.heading}>Quick Links</h4>
           <Link to="/" style={styles.link}>Home</Link>
           <Link to="/about" style={styles.link}>About</Link>
-          <Link to="/how-it-works" style={styles.link}>How It Works</Link>
+          {/* <Link to="/how-it-works" style={styles.link}>How It Works</Link> */}
           <Link to="/contact" style={styles.link}>Contact</Link>
         </div>
 
         {/* TRUST & INFO */}
         <div style={styles.section}>
-          <h4 style={styles.heading}>Why TrustBridge?</h4>
+          <h4 style={styles.heading}>Why HelpChain?</h4>
           <p style={styles.text}>✔ Admin verified NGOs</p>
           <p style={styles.text}>✔ Proof-based donations</p>
           <p style={styles.text}>✔ Transparent impact</p>
@@ -39,7 +39,7 @@ function Footer() {
 
       {/* BOTTOM BAR */}
       <div style={styles.bottom}>
-        <p>© 2026 TrustBridge. All rights reserved.</p>
+        <p>© 2026 HelpChain. All rights reserved.</p>
         <p style={styles.small}>Built for transparency & trust</p>
       </div>
     </footer>

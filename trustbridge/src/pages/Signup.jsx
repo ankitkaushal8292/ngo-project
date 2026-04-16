@@ -4,62 +4,128 @@ import { useState } from "react";
 function Signup() {
   const navigate = useNavigate();
 
-  // STATES
+  // BASIC STATES
   const [role, setRole] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  // NGO STATES
+  const [registrationNumber, setRegistrationNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [document, setDocument] = useState(null);
+  const [photos, setPhotos] = useState([]);
 
   // SIGNUP HANDLER
-const handleSignup = () => {
-  if (!name || !email || !password || !role) {
-    alert("Please fill all fields");
-    return;
-  }
+  const handleSignup = async () => {
+    if (!name || !email || !password || !role) {
+      setError("All required fields must be filled");
+      return;
+    }
 
-  // ✅ COMMON AUTH
-  localStorage.setItem("isLoggedIn", "true");
-  localStorage.setItem("role", role);
+    try {
+      // ================= DONOR =================
+      if (role === "donor") {
+        const res = await fetch("http://localhost:5000/api/donors/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ name, email, password }),
+        });
 
-  // ================= NGO SIGNUP =================
-  if (role === "ngo") {
-    localStorage.setItem(
-      "ngo",
-      JSON.stringify({
-        name,
-        email,
-      })
-    );
+        const data = await res.json();
 
-    navigate("/ngo-details"); // ✅ NGO FORM
-  }
+        if (!res.ok) {
+          setError(data.message);
+          return;
+        }
 
-  // ================= DONOR SIGNUP =================
-else if (role === "donor") {
-  localStorage.setItem(
-    "donor",
-    JSON.stringify({
-      name,     // 👈 THIS IS MISSING EARLIER
-      email,
-       joinedAt: new Date().toISOString(),
-    })
-  );
+        setError("");
 
-  localStorage.setItem("isLoggedIn", "true");
-  localStorage.setItem("role", "donor");
+// 🔥 ADD THIS
+sessionStorage.clear();
 
-  navigate("/"); // ✅ MUST
-}
+sessionStorage.setItem("role", "donor");
+localStorage.setItem(
+  "donor",
+  JSON.stringify({
+    name,
+    email,
+  })
+);
 
-};
+navigate("/donor-dashboard");// ya /donor-dashboard agar hai
 
+return; // ❗ VERY IMPORTANT
+      }
+
+      // ================= NGO =================
+      const formData = new FormData();
+
+      formData.append("name", name);
+      formData.append("email", email);
+      formData.append("password", password);
+
+      if (!registrationNumber || !address || !document) {
+        setError("Please fill all NGO details");
+        return;
+      }
+
+      formData.append("registrationNumber", registrationNumber);
+      formData.append("type", role);
+      formData.append("address", address);
+      formData.append("document", document);
+
+      photos.forEach((photo) => {
+        formData.append("photos", photo);
+      });
+
+      const res = await fetch("http://localhost:5000/api/ngos/register", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message);
+        return;
+      }
+
+setError("");
+
+// 🔥 CLEAR OLD DATA
+sessionStorage.clear();
+
+// 🔥 SAVE NGO DATA (IMPORTANT)
+sessionStorage.setItem("role", "ngo");
+sessionStorage.setItem(
+  "ngo",
+  JSON.stringify({
+    name,
+    email,
+  })
+);
+
+
+sessionStorage.setItem("ngoId", data.ngoId);
+
+navigate(`/ngo-dashboard/${data.ngoId}`);
+
+return;
+
+    } catch (err) {
+      console.log(err);
+      setError("Server error");
+    }
+  };
 
   return (
     <div style={styles.container}>
-      {/* BACKGROUND OVERLAY */}
       <div style={styles.overlay}></div>
 
-      {/* SIGNUP CARD */}
       <div style={styles.card}>
         <h2 style={styles.heading}>Create Account</h2>
         <p style={styles.subHeading}>
@@ -88,7 +154,6 @@ else if (role === "donor") {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        {/* ROLE SELECT */}
         <select
           style={styles.input}
           value={role}
@@ -99,7 +164,50 @@ else if (role === "donor") {
           <option value="ngo">NGO</option>
         </select>
 
-        {/* SIGNUP BUTTON */}
+        {/* NGO EXTRA FIELDS */}
+        {role === "ngo" && (
+          <>
+            <input
+              style={styles.input}
+              placeholder="Registration Number"
+              value={registrationNumber}
+              onChange={(e) => setRegistrationNumber(e.target.value)}
+            />
+
+            <input
+              style={styles.input}
+              placeholder="Address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+            />
+
+          {/* 📄 Certificate Upload */}
+<div style={styles.fileBox}>
+  <span style={styles.fileLabel}>
+    📄 Upload Registration Certificate
+  </span>
+  <input
+    type="file"
+    onChange={(e) => setDocument(e.target.files[0])}
+  />
+</div>
+
+{/* 🖼 NGO Photos Upload */}
+<div style={styles.fileBox}>
+  <span style={styles.fileLabel}>
+    🖼 Upload NGO Work Photos (Max 4)
+  </span>
+  <input
+    type="file"
+    multiple
+    onChange={(e) => setPhotos([...e.target.files])}
+  />
+</div>
+          </>
+        )}
+
+        {error && <p style={{ color: "red" }}>{error}</p>}
+
         <button style={styles.button} onClick={handleSignup}>
           Sign Up
         </button>
@@ -163,23 +271,23 @@ const styles = {
     color: "#d1fae5",
   },
 
-  input: {
-    width: "100%",
-    height: "48px",
-    padding: "0 14px",
-    marginBottom: "14px",
-    borderRadius: "12px",
-    border: "none",
-    outline: "none",
-    fontSize: "15px",
-    boxSizing: "border-box",
-  },
+ input: {
+  width: "100%",
+  height: "48px",
+  padding: "0 14px",
+  marginBottom: "14px",
+  borderRadius: "12px",
+  border: "none",
+  outline: "none",
+  fontSize: "15px",
+  boxSizing: "border-box",
+  display: "block",        
+},
 
   button: {
     width: "100%",
     height: "48px",
-    background:
-      "linear-gradient(90deg, #22c55e, #16a34a)",
+    background: "linear-gradient(90deg, #22c55e, #16a34a)",
     border: "none",
     borderRadius: "12px",
     color: "white",
@@ -188,6 +296,17 @@ const styles = {
     cursor: "pointer",
     marginTop: "10px",
   },
+  fileBox: {
+  textAlign: "left",
+  marginBottom: "12px",
+},
+
+fileLabel: {
+  fontSize: "14px",
+  display: "block",
+  marginBottom: "5px",
+  color: "#d1fae5",
+},
 
   text: {
     marginTop: "18px",

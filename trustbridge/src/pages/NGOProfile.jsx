@@ -14,41 +14,53 @@ function NGOProfile() {
   const [darkMode, setDarkMode] = useState(false);
   const [bills,setBills] = useState([])
 
-  useEffect(() => {
-    if (!id) {
-      navigate("/");
-      return;
+useEffect(() => {
+  if (!id) {
+    navigate("/");
+    return;
+  }
+
+  // ✅ NGO fetch
+  const fetchNGO = async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/ngos/${id}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error();
+      setNgo(data);
+    } catch {
+      alert("Unable to load NGO profile");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    useEffect(()=>{
+  fetchNGO();
 
-fetch("http://localhost:5000/api/bills")
-.then(res=>res.json())
-.then(data=>{
+  // ✅ BILLS FETCH (यहाँ add करो)
+  fetch("http://localhost:5000/api/bills")
+    .then(res => res.json())
+    .then(data => {
+      const filtered = data.filter(b => b.ngoId === id);
+      setBills(filtered);
+    });
 
-const filtered = data.filter(b=>b.ngoId===id)
+}, [id, navigate]);
 
-setBills(filtered)
+  //   const fetchNGO = async () => {
+  //     try {
+  //       const res = await fetch(`http://localhost:5000/api/ngos/${id}`);
+  //       const data = await res.json();
+  //       if (!res.ok) throw new Error();
+  //       setNgo(data);
+  //     } catch {
+  //       alert("Unable to load NGO profile");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-})
-
-},[])
-
-    const fetchNGO = async () => {
-      try {
-        const res = await fetch(`http://localhost:5000/api/ngos/${id}`);
-        const data = await res.json();
-        if (!res.ok) throw new Error();
-        setNgo(data);
-      } catch {
-        alert("Unable to load NGO profile");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNGO();
-  }, [id, navigate]);
+  //   fetchNGO();
+  // }, [id, navigate]);
 
   if (loading) return <div>Loading...</div>;
   if (!ngo) return <div>NGO not found</div>;

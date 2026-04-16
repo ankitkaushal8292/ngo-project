@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-
+import DonationForm from "../components/DonationForm";
 function Home() {
   const navigate = useNavigate();
 
@@ -10,6 +10,7 @@ function Home() {
   const [heroImages, setHeroImages] = useState([]); // 🔥 STATIC + NGO images
   const [index, setIndex] = useState(0);
   const [showLogin, setShowLogin] = useState(false);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
 
   const [campaigns, setCampaigns] = useState([]);
 const [loadingCampaign, setLoadingCampaign] = useState(true);
@@ -277,14 +278,12 @@ alert("Donation successful 🎉")
 
       {/* 🔥 DONATE BUTTON */}
 {sessionStorage.getItem("role") === "donor" && (
-  <button
-    onClick={() =>
-      navigate(`/ngo-profile/${campaign.ngoId}`)
-    }
-    style={styles.donateBtn}
-  >
-    DONATE
-  </button>
+ <button
+  onClick={() => setSelectedCampaign(campaign)}
+  style={styles.donateBtn}
+>
+  DONATE
+</button>
 )}
     </div>
   </div>
@@ -344,6 +343,29 @@ alert("Donation successful 🎉")
           </div>
         </div>
       )}
+
+      {selectedCampaign && (
+  <div style={styles.modalOverlay}>
+    <div style={styles.modalBox}>
+
+      <button
+        onClick={() => setSelectedCampaign(null)}
+        style={{ float: "right", cursor: "pointer" }}
+      >
+        ❌
+      </button>
+
+      <h2>Donate to {selectedCampaign.title}</h2>
+
+     <DonationForm 
+  ngoId={selectedCampaign.ngoId} 
+  campaignId={selectedCampaign._id}
+  onClose={() => setSelectedCampaign(null)}
+/>
+
+    </div>
+  </div>
+)}
 
       <Footer />
     </>
@@ -468,6 +490,25 @@ signupText: {
   fontSize: "14px",
   color: "#6b7280",
   cursor: "pointer",
+},
+modalOverlay: {
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  background: "rgba(0,0,0,0.6)",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  zIndex: 999,
+},
+
+modalBox: {
+  background: "white",
+  padding: "30px",
+  borderRadius: "12px",
+  width: "400px",
 },
 
 };

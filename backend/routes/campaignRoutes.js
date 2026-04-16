@@ -3,7 +3,7 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 const Campaign = require("../models/Campaign");
-
+const Ngo = require("../models/Ngo");
 const router = express.Router();
 
 /* ===== Multer Config ===== */
@@ -19,6 +19,26 @@ const upload = multer({ storage });
 router.post("/create", upload.single("image"), async (req, res) => {
   try {
     const { title, description, targetAmount, ngoId } = req.body;
+    // 🔍 NGO check
+const ngo = await Ngo.findById(ngoId);
+
+if (!ngo) {
+  return res.status(404).json({ message: "NGO not found" });
+}
+
+// 🚫 BLOCKED NGO
+if (ngo.isBlocked) {
+  return res.status(403).json({
+    message: "Your NGO is blocked. Cannot create campaign.",
+  });
+}
+
+// 🚫 NOT APPROVED NGO
+if (ngo.status !== "approved") {
+  return res.status(403).json({
+    message: "NGO not approved yet.",
+  });
+}
 
     if (!title || !description || !targetAmount || !ngoId || !req.file) {
       return res.status(400).json({ message: "All fields required" });

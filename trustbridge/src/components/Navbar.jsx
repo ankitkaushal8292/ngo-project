@@ -9,16 +9,18 @@ function Navbar() {
   const role = sessionStorage.getItem("role");
   const isLoggedIn = !!role;
 
-  const ngoData =
-    role === "ngo" ? JSON.parse(sessionStorage.getItem("ngo")) : null;
+const ngoData =
+  role === "ngo" ? JSON.parse(sessionStorage.getItem("ngo")) : null;
 
-  const donorData =
-    role === "donor" ? JSON.parse(sessionStorage.getItem("donor")) : null;
+ const donorData =
+  role === "donor" ? JSON.parse(localStorage.getItem("donor")) : null;
 
   const ngoId = sessionStorage.getItem("ngoId");
 
   const handleLogout = () => {
     sessionStorage.clear();
+localStorage.removeItem("donor");
+localStorage.removeItem("ngo");
     setOpen(false);
     navigate("/");
   };
